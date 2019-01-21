@@ -1,0 +1,9 @@
+manifest = "1b935985644eab47c7c7826a9c0b4917e83b00e1d96c56f2c5ef6c2111a12d7e"
+
+[[dependency]]
+package = "github.com/buckaroo-pm/pkg-config-curl"
+target = "//:curl"
+
+[lock."github.com/buckaroo-pm/pkg-config-curl"]
+versions = [ "branch=master" ]
+revision = "9589b95caa9fb75eb8fc0ac84127efdef15a6a4f"

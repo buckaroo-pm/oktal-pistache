@@ -1,0 +1,5 @@
+targets = [ "//:pistache" ]
+
+[[dependency]]
+package = "github.com/buckaroo-pm/pkg-config-curl"
+version = "*"

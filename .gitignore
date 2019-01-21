@@ -29,3 +29,10 @@ build
 *.exe
 *.out
 *.app
+
+.buckd
+buck-out
+.buckconfig.local
+.buckconfig.d
+buckaroo
+buckaroo_macros.bzl

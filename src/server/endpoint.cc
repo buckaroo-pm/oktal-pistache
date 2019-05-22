@@ -4,7 +4,7 @@
    Implementation of the http endpoint
 */
 
-
+#include <pistache/config.h>
 #include <pistache/endpoint.h>
 #include <pistache/tcp.h>
 #include <pistache/peer.h>
@@ -87,6 +87,33 @@ void
 Endpoint::shutdown()
 {
     listener.shutdown();
+}
+
+void
+Endpoint::useSSL(std::string cert, std::string key, bool use_compression)
+{
+#ifndef PISTACHE_USE_SSL
+    (void)cert;
+    (void)key;
+    (void)use_compression;
+    throw std::runtime_error("Pistache is not compiled with SSL support.");
+#else
+    listener.setupSSL(cert, key, use_compression);
+#endif /* PISTACHE_USE_SSL */
+}
+
+void
+Endpoint::useSSLAuth(std::string ca_file, std::string ca_path, int (*cb)(int, void *))
+{
+#ifndef PISTACHE_USE_SSL
+    (void)ca_file;
+    (void)ca_path;
+    (void)cb;
+    throw std::runtime_error("Pistache is not compiled with SSL support.");
+#else
+    listener.setupSSLAuth(ca_file, ca_path, cb);
+#endif /* PISTACHE_USE_SSL */
+
 }
 
 Async::Promise<Tcp::Listener::Load>

@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <stdexcept>
 #include <cassert>
+#include <cmath>
 
 #include <pistache/optional.h>
 
@@ -99,7 +100,7 @@ public:
     }
 
     static Q fromFloat(double f) {
-        return Q(static_cast<Type>(f * 100.0));
+        return Q(static_cast<Type>(round(f * 100.0)));
     }
 
     Type value() const { return val_; }
@@ -193,8 +194,8 @@ public:
     const Optional<Q>& q() const { return q_; }
     void setQuality(Q quality);
 
-    Optional<std::string> getParam(std::string name) const;
-    void setParam(std::string name, std::string value);
+    Optional<std::string> getParam(const std::string& name) const;
+    void setParam(const std::string& name, std::string value);
 
     std::string toString() const;
     bool isValid() const;

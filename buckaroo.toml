@@ -3,3 +3,8 @@ targets = [ "//:pistache" ]
 [[dependency]]
 package = "github.com/buckaroo-pm/pkg-config-curl"
 version = "*"
+
+[[dependency]]
+package = "github.com/buckaroo-pm/google-googletest"
+version = "*"
+private = true

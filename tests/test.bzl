@@ -8,6 +8,5 @@ def test(file):
     ],
     deps = buckaroo_deps() + [
       '//:pistache',
-      '//googletest-release-1.7.0:googletest',
     ],
   )

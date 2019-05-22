@@ -1,9 +1,17 @@
-manifest = "1b935985644eab47c7c7826a9c0b4917e83b00e1d96c56f2c5ef6c2111a12d7e"
+manifest = "3d7168a4e6230186a3ee80134871e8c46ffc4e709cb589d9d92595d45c1ddfcb"
+
+[[dependency]]
+package = "github.com/buckaroo-pm/google-googletest"
+target = "//:googletest"
 
 [[dependency]]
 package = "github.com/buckaroo-pm/pkg-config-curl"
 target = "//:curl"
 
+[lock."github.com/buckaroo-pm/google-googletest"]
+versions = [ "branch=master" ]
+revision = "cb8d2c1a2fcd344953e6c129a1a699a2c230551d"
+
 [lock."github.com/buckaroo-pm/pkg-config-curl"]
 versions = [ "branch=master" ]
-revision = "9589b95caa9fb75eb8fc0ac84127efdef15a6a4f"
+revision = "172dabe81beabe3f4dce71d66a5ff9251ef9ef11"

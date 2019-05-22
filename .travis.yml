@@ -21,7 +21,7 @@ os:
   - osx
 
 env:
-  - BUCKAROO_VERSION=buckaroo-redux-alpha-11
+  - BUCKAROO_VERSION=v2.2.0
 
 osx_image: xcode9.3
 

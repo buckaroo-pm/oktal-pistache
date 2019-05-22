@@ -30,21 +30,13 @@ namespace Http {
 class ConnectionPool;
 class Transport;
 
-std::pair<StringView, StringView> splitUrl(const std::string& url);
-
 struct Connection : public std::enable_shared_from_this<Connection> {
 
     friend class ConnectionPool;
 
     using OnDone = std::function<void()>;
 
-    Connection()
-        : fd(-1)
-        , requestEntry(nullptr) 
-    {
-        state_.store(static_cast<uint32_t>(State::Idle));
-        connectionState_.store(NotConnected);
-    }
+    Connection();
 
     struct RequestData {
 
@@ -102,8 +94,7 @@ struct Connection : public std::enable_shared_from_this<Connection> {
             Async::Rejection reject,
             OnDone onDone);
 
-    Fd fd;
-
+    Fd fd() const;
     void handleResponsePacket(const char* buffer, size_t totalBytes);
     void handleError(const char* error);
     void handleTimeout();
@@ -129,6 +120,8 @@ private:
         std::shared_ptr<TimerPool::Entry> timer;
         OnDone onDone;
     };
+
+    Fd fd_;
 
     struct sockaddr_in saddr;
     std::unique_ptr<RequestEntry> requestEntry;
@@ -180,16 +173,16 @@ public:
       : requestsQueue()
       , connectionsQueue()
       , connections()
-      , requests()
       , timeouts()
+      , timeoutsLock()
     { }
 
     Transport(const Transport &)
       : requestsQueue()
       , connectionsQueue()
       , connections()
-      , requests()
       , timeouts()
+      , timeoutsLock()
     { }
 
     void onReady(const Aio::FdSet& fds) override;
@@ -213,18 +206,21 @@ private:
     struct ConnectionEntry {
         ConnectionEntry(
                 Async::Resolver resolve, Async::Rejection reject,
-                std::shared_ptr<Connection> connection, const struct sockaddr* addr, socklen_t addr_len)
+                std::shared_ptr<Connection> connection, const struct sockaddr* _addr, socklen_t _addr_len)
             : resolve(std::move(resolve))
             , reject(std::move(reject))
             , connection(connection)
-            , addr(addr)
-            , addr_len(addr_len)
-        { }
+            , addr_len(_addr_len)
+        {
+            memcpy(&addr, _addr, addr_len);
+        }
+
+        const sockaddr *getAddr() const { return reinterpret_cast<const sockaddr *>(&addr); }
 
         Async::Resolver resolve;
         Async::Rejection reject;
         std::weak_ptr<Connection> connection;
-        const struct sockaddr* addr;
+        sockaddr_storage addr;
         socklen_t addr_len;
     };
 
@@ -237,7 +233,7 @@ private:
             : resolve(std::move(resolve))
             , reject(std::move(reject))
             , connection(connection)
-            , timer(std::move(timer))
+            , timer(timer)
             , buffer(std::move(buf))
         {
         }
@@ -254,13 +250,19 @@ private:
     PollableQueue<ConnectionEntry> connectionsQueue;
 
     std::unordered_map<Fd, ConnectionEntry> connections;
-    std::unordered_map<Fd, RequestEntry> requests;
-    std::unordered_map<Fd, std::shared_ptr<Connection>> timeouts;
+
+    std::unordered_map<Fd, std::weak_ptr<Connection>> timeouts;
+    using Lock = std::mutex;
+    using Guard = std::lock_guard<Lock>;
+    Lock timeoutsLock;
 
     void asyncSendRequestImpl(const RequestEntry& req, WriteStatus status = FirstTry);
 
     void handleRequestsQueue();
     void handleConnectionQueue();
+    void handleReadableEntry(const Aio::FdSet::Entry& entry);
+    void handleWritableEntry(const Aio::FdSet::Entry& entry);
+    void handleHangupEntry(const Aio::FdSet::Entry& entry);
     void handleIncoming(std::shared_ptr<Connection> connection);
     void handleResponsePacket(const std::shared_ptr<Connection>& connection, const char* buffer, size_t totalBytes);
     void handleTimeout(const std::shared_ptr<Connection>& connection);

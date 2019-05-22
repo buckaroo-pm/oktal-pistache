@@ -70,7 +70,7 @@ class Request;
 struct Route {
     enum class Result { Ok, Failure };
 
-    enum class Status { Match, NotFound };
+    enum class Status { Match, NotFound, NotAllowed };
 
     typedef std::function<Result(const Request, Http::ResponseWriter)> Handler;
 
@@ -225,6 +225,7 @@ public:
     void patch(const std::string& resource, Route::Handler handler);
     void del(const std::string& resource, Route::Handler handler);
     void options(const std::string& resource, Route::Handler handler);
+    void addRoute(Http::Method method, const std::string& resource, Route::Handler handler);
     void removeRoute(Http::Method method, const std::string& resource);
 
     void addCustomHandler(Route::Handler handler);
@@ -242,9 +243,6 @@ public:
     { }
 
 private:
-
-    void addRoute(Http::Method method, const std::string& resource,
-                  Route::Handler handler);
 
     std::unordered_map<Http::Method, SegmentTreeNode> routes;
 

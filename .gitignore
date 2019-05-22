@@ -30,9 +30,14 @@ build
 *.out
 *.app
 
+# Buck
 .buckd
 buck-out
 .buckconfig.local
 .buckconfig.d
 buckaroo
 buckaroo_macros.bzl
+
+# Ignoring IDE files
+.vscode
+.idea
